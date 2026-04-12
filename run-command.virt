@@ -1,5 +1,5 @@
 run-command dnf install epel-release -y
-run-command dnf -y --setopt=install_weak_deps=False group install "GNOME"
+run-command dnf -y --setopt=install_weak_deps=False group install "workstation"
 run-command dnf -y install "xorgxrdp" 
 run-command systemctl set-default graphical.target
 run-command dnf -y install xrdp
