@@ -1,14 +1,16 @@
 run-command dnf install epel-release -y
 
-# Install GNOME desktop from the Rocky AppStream group.
-run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs group install "GNOME" --exclude=*-firmware --exclude=linux-firmware
+# Install an XFCE desktop from EPEL without pulling in GNOME or gdm.
+run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs install Thunar xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop xfwm4 network-manager-applet openssh-askpass thunar-archive-plugin thunar-volman tumbler xfce-polkit xfce4-appfinder xfce4-power-manager xfce4-pulseaudio-plugin xfce4-screensaver xfce4-terminal lightdm lightdm-gtk --exclude=*-firmware --exclude=linux-firmware
 
 run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs install firefox xrdp xorgxrdp net-tools vim nmap
 run-command systemctl enable xrdp
+run-command systemctl enable lightdm
+run-command systemctl disable gdm || true
 run-command systemctl set-default graphical.target
 
-# Set GNOME as the default desktop/session selection.
-run-command sh -c 'printf "DESKTOP=GNOME\nDISPLAYMANAGER=GNOME\n" > /etc/sysconfig/desktop'
+# Set XFCE as the default desktop/session selection.
+run-command sh -c 'printf "DESKTOP=XFCE\nDISPLAYMANAGER=LIGHTDM\n" > /etc/sysconfig/desktop'
 
 run-command mkdir -p /etc/firefox/policies
 upload firefox-policies.json:/etc/firefox/policies/policies.json
@@ -18,9 +20,14 @@ run-command chmod 0644 /etc/firefox/policies/policies.json
 run-command mkdir -p /etc/firewalld/zones
 upload xrdp.xml:/etc/firewalld/zones/xrdp.xml
 upload xrdp.ini:/etc/xrdp/xrdp.ini
+upload xrdp-xfce-session.sh:/etc/xrdp/xrdp-xfce-session.sh
 upload 99-xrdp-buffers.conf:/etc/sysctl.d/99-xrdp-buffers.conf
-run-command chown root:root /etc/firewalld/zones/xrdp.xml /etc/xrdp/xrdp.ini /etc/sysctl.d/99-xrdp-buffers.conf
-run-command chmod 0644 /etc/firewalld/zones/xrdp.xml /etc/xrdp/xrdp.ini /etc/sysctl.d/99-xrdp-buffers.conf
+upload 99-disable-ipv6.conf:/etc/sysctl.d/99-disable-ipv6.conf
+run-command sed -i 's|^DefaultWindowManager=.*|DefaultWindowManager=/etc/xrdp/xrdp-xfce-session.sh|' /etc/xrdp/sesman.ini
+run-command chown root:root /etc/firewalld/zones/xrdp.xml /etc/xrdp/xrdp.ini /etc/xrdp/xrdp-xfce-session.sh /etc/sysctl.d/99-xrdp-buffers.conf /etc/sysctl.d/99-disable-ipv6.conf
+run-command chmod 0644 /etc/firewalld/zones/xrdp.xml /etc/xrdp/xrdp.ini /etc/sysctl.d/99-xrdp-buffers.conf /etc/sysctl.d/99-disable-ipv6.conf
+run-command chmod 0755 /etc/xrdp/xrdp-xfce-session.sh
+run-command grubby --update-kernel=ALL --args="ipv6.disable=1"
 
 # Keep full locale coverage so the image supports all languages.
 run-command dnf -y install glibc-all-langpacks

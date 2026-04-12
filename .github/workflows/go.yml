@@ -2,28 +2,25 @@ name: Go
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "xfce" ]
     tags-ignore:
       - "v*"          # prevent infinite loops when pushing tags
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "xfce" ]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04 ## Only works on ubuntu 22.04 
+    runs-on: ubuntu-22.04 ## Only works on ubuntu 22.04
 
     permissions:
       contents: write   # required for tags + GitHub releases
       packages: write   # required for GHCR push
 
     steps:
-      # -------------------------------
-      # Checkout
-      # -------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # REQUIRED for tag calculation
+          fetch-depth: 0
           lfs: true
 
       - name: Install packages
@@ -32,35 +29,39 @@ jobs:
           sudo apt update -y
           sudo apt install wget e2fsprogs curl libguestfs-tools -y
 
-      - name:  Get Rocky9
+      - name: Get Rocky9
         run: |
           wget https://dl.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud-Base.latest.x86_64.qcow2
 
-      - name:  Extend cloud image
+      - name: Extend cloud image
         run: |
           sudo virt-customize -a Rocky-9-GenericCloud-Base.latest.x86_64.qcow2 --commands-from-file 'run-command.virt'
           ls -la
 
-      - name:  Compress cloud image
+      - name: Compress cloud image
         run: |
           sudo qemu-img convert -c -O qcow2 Rocky-9-GenericCloud-Base.latest.x86_64.qcow2 rocky9-desktop-cloudimg-amd64.img
           ls -la
 
-      # -------------------------------
-      # Versioning & Release (main only)
-      # -------------------------------
+      - name: Set artifact base name
+        if: github.event_name == 'push'
+        id: meta
+        run: |
+          echo "branch=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          echo "artifact_base=rocky9-desktop-cloudimg-amd64-${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+
       - name: Bump version and create tag
         if: github.event_name == 'push'
         id: tag
         uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          release_branches: main
+          release_branches: main,xfce
 
       - name: Stamp release image filename
         if: github.event_name == 'push' && steps.tag.outputs.new_tag != ''
         run: |
-          mv rocky9-desktop-cloudimg-amd64.img rocky9-desktop-cloudimg-amd64-${{ steps.tag.outputs.new_tag }}.img
+          mv rocky9-desktop-cloudimg-amd64.img "${{ steps.meta.outputs.artifact_base }}-${{ steps.tag.outputs.new_tag }}.img"
           ls -la
 
       - name: Create GitHub release
@@ -70,4 +71,4 @@ jobs:
           tag: ${{ steps.tag.outputs.new_tag }}
           name: Release ${{ steps.tag.outputs.new_tag }}
           body: ${{ steps.tag.outputs.changelog }}
-          artifacts: rocky9-desktop-cloudimg-amd64-${{ steps.tag.outputs.new_tag }}.img
+          artifacts: ${{ steps.meta.outputs.artifact_base }}-${{ steps.tag.outputs.new_tag }}.img
