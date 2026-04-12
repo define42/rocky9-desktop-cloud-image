@@ -3,16 +3,23 @@ run-command dnf install epel-release -y
 # Install GNOME desktop from the Rocky AppStream group.
 run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs group install "GNOME" --exclude=*-firmware --exclude=linux-firmware
 
-run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs install xrdp xorgxrdp
+run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs install firefox xrdp xorgxrdp
 run-command systemctl enable xrdp
 run-command systemctl set-default graphical.target
 
 # Set GNOME as the default desktop/session selection.
 run-command sh -c 'printf "DESKTOP=GNOME\nDISPLAYMANAGER=GNOME\n" > /etc/sysconfig/desktop'
 
+run-command mkdir -p /etc/firefox/policies
+upload firefox-policies.json:/etc/firefox/policies/policies.json
+run-command chown root:root /etc/firefox/policies/policies.json
+run-command chmod 0644 /etc/firefox/policies/policies.json
+
 run-command mkdir -p /etc/firewalld/zones
 upload xrdp.xml:/etc/firewalld/zones/xrdp.xml
 upload xrdp.ini:/etc/xrdp/xrdp.ini
+run-command chown root:root /etc/firewalld/zones/xrdp.xml /etc/xrdp/xrdp.ini
+run-command chmod 0644 /etc/firewalld/zones/xrdp.xml /etc/xrdp/xrdp.ini
 
 # Remove unnecessary locale data (keep only en_US)
 run-command dnf -y install glibc-langpack-en
