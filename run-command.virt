@@ -3,6 +3,8 @@ run-command dnf install epel-release -y
 run-command systemctl set-default graphical.target
 run-command dnf -y install xrdp
 run-command systemctl enable xrdp
+run-command firewall-cmd --add-service=rdp --permanent
+run-command firewall-cmd --reload
 #install xfce4,xfce4-goodies,xfce4-terminal,lightdm,lightdm-gtk-greeter,xauth,xserver-xorg-input-libinput,xserver-xorg-legacy,xrdp,xorgxrdp,dbus-x11,grub-pc-bin,vim,net-tools,nmap,snapd,wget,gnupg
 
 #run-command ln -sf /dev/null /etc/systemd/system/systemd-networkd-wait-online.service
