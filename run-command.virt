@@ -18,8 +18,9 @@ run-command chmod 0644 /etc/firefox/policies/policies.json
 run-command mkdir -p /etc/firewalld/zones
 upload xrdp.xml:/etc/firewalld/zones/xrdp.xml
 upload xrdp.ini:/etc/xrdp/xrdp.ini
-run-command chown root:root /etc/firewalld/zones/xrdp.xml /etc/xrdp/xrdp.ini
-run-command chmod 0644 /etc/firewalld/zones/xrdp.xml /etc/xrdp/xrdp.ini
+upload 99-xrdp-buffers.conf:/etc/sysctl.d/99-xrdp-buffers.conf
+run-command chown root:root /etc/firewalld/zones/xrdp.xml /etc/xrdp/xrdp.ini /etc/sysctl.d/99-xrdp-buffers.conf
+run-command chmod 0644 /etc/firewalld/zones/xrdp.xml /etc/xrdp/xrdp.ini /etc/sysctl.d/99-xrdp-buffers.conf
 
 # Keep full locale coverage so the image supports all languages.
 run-command dnf -y install glibc-all-langpacks
