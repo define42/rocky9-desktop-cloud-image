@@ -7,6 +7,8 @@ run-command systemctl enable xrdp
 run-command mkdir -p /etc/firewalld/zones
 upload xrdp.xml:/etc/firewalld/zones/xrdp.xml
 upload xrdp.ini:/etc/xrdp/xrdp.ini
+
+run-command systemctl set-default graphical.target
 #run-command firewall-cmd --add-service=rdp --permanent
 #run-command firewall-cmd --reload
 #install xfce4,xfce4-goodies,xfce4-terminal,lightdm,lightdm-gtk-greeter,xauth,xserver-xorg-input-libinput,xserver-xorg-legacy,xrdp,xorgxrdp,dbus-x11,grub-pc-bin,vim,net-tools,nmap,snapd,wget,gnupg
