@@ -1,6 +1,5 @@
 run-command dnf install epel-release -y
-run-command dnf -y group install "xfce" 
-run-command dnf -y install "lightdm dbus dbus-broker glibc NetworkManager cloud-init" 
+run-command dnf -y group install "GNOME Core base-x Standard" 
 run-command dnf -y install "xorgxrdp" 
 run-command systemctl set-default graphical.target
 run-command dnf -y install xrdp
