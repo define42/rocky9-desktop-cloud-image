@@ -1,5 +1,6 @@
 run-command dnf install epel-release -y
-run-command dnf -y group install "Server with GUI" 
+run-command dnf -y group install "xfce" 
+run-command dnf -y install "lightdm" 
 run-command dnf -y install "xorgxrdp" 
 run-command systemctl set-default graphical.target
 run-command dnf -y install xrdp
