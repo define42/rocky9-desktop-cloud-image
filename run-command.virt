@@ -1,5 +1,11 @@
 run-command dnf install epel-release -y
 run-command dnf -y --setopt=tsflags=nodocs update --exclude=*-firmware --exclude=linux-firmware
+run-command rpm --import https://packages.microsoft.com/keys/microsoft.asc
+upload vscode.repo:/etc/yum.repos.d/vscode.repo
+run-command chown root:root /etc/yum.repos.d/vscode.repo
+run-command chmod 0644 /etc/yum.repos.d/vscode.repo
+run-command sh -c 'dnf check-update || test $? -eq 100'
+run-command dnf -y --setopt=tsflags=nodocs install code
 
 # Install an XFCE desktop from EPEL without pulling in GNOME or gdm.
 run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs install Thunar xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop xfwm4 network-manager-applet openssh-askpass thunar-archive-plugin thunar-volman tumbler xfce-polkit xfce4-appfinder xfce4-power-manager xfce4-pulseaudio-plugin xfce4-screensaver xfce4-terminal lightdm lightdm-gtk --exclude=*-firmware --exclude=linux-firmware
@@ -17,6 +23,10 @@ run-command mkdir -p /etc/firefox/policies
 upload firefox-policies.json:/etc/firefox/policies/policies.json
 run-command chown root:root /etc/firefox/policies/policies.json
 run-command chmod 0644 /etc/firefox/policies/policies.json
+
+# Disable XFCE compositor for XRDP performance
+upload xfwm4.xml:/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
+run-command chmod 0644 /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
 
 run-command mkdir -p /etc/firewalld/zones
 upload xrdp.xml:/etc/firewalld/zones/xrdp.xml
