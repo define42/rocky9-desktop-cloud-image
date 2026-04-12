@@ -3,7 +3,7 @@ run-command dnf install epel-release -y
 # Install GNOME desktop from the Rocky AppStream group.
 run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs group install "GNOME" --exclude=*-firmware --exclude=linux-firmware
 
-run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs install firefox xrdp xorgxrdp
+run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs install firefox xrdp xorgxrdp net-tools vim nmap
 run-command systemctl enable xrdp
 run-command systemctl set-default graphical.target
 
@@ -21,10 +21,8 @@ upload xrdp.ini:/etc/xrdp/xrdp.ini
 run-command chown root:root /etc/firewalld/zones/xrdp.xml /etc/xrdp/xrdp.ini
 run-command chmod 0644 /etc/firewalld/zones/xrdp.xml /etc/xrdp/xrdp.ini
 
-# Remove unnecessary locale data (keep only en_US)
-run-command dnf -y install glibc-langpack-en
-run-command dnf -y remove glibc-all-langpacks || true
-run-command localedef --list-archive | grep -v -i ^en | xargs localedef --delete-from-archive || true
+# Keep full locale coverage so the image supports all languages.
+run-command dnf -y install glibc-all-langpacks
 
 # Cleanup
 run-command dnf autoremove -y
