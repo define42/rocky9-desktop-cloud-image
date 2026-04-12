@@ -1,5 +1,8 @@
 run-command dnf install epel-release -y
-run-command dnf -y group install "GNOME Core base-x Standard" 
+run-command dnf -y group install "GNOME"
+run-command dnf -y group install "Core" 
+run-command dnf -y group install "base-x" 
+run-command dnf -y group install "Standard" 
 run-command dnf -y install "xorgxrdp" 
 run-command systemctl set-default graphical.target
 run-command dnf -y install xrdp
