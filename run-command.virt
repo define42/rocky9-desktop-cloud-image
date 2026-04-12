@@ -1,19 +1,51 @@
 run-command dnf install epel-release -y
-run-command dnf -y --setopt=install_weak_deps=False group install "workstation"
-run-command dnf -y install "xorgxrdp" 
-run-command systemctl set-default graphical.target
-run-command dnf -y install xrdp
+
+# Install minimal GNOME desktop instead of full "workstation" to save ~1.5GB
+# "workstation" pulls LibreOffice, Evolution, GNOME Maps/Videos/Photos, etc.
+run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs \
+  group install "Server with GUI" \
+  --exclude=libreoffice* \
+  --exclude=evolution* \
+  --exclude=gnome-maps \
+  --exclude=gnome-photos \
+  --exclude=gnome-weather \
+  --exclude=gnome-contacts \
+  --exclude=gnome-clocks \
+  --exclude=gnome-tour \
+  --exclude=gnome-boxes \
+  --exclude=rhythmbox \
+  --exclude=totem \
+  --exclude=cheese \
+  --exclude=yelp \
+  --exclude=baobab \
+  --exclude=simple-scan \
+  --exclude=*-firmware \
+  --exclude=linux-firmware
+
+run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs install xrdp xorgxrdp
 run-command systemctl enable xrdp
+run-command systemctl set-default graphical.target
 
 run-command mkdir -p /etc/firewalld/zones
 upload xrdp.xml:/etc/firewalld/zones/xrdp.xml
 upload xrdp.ini:/etc/xrdp/xrdp.ini
 
-run-command systemctl set-default graphical.target
+# Remove unnecessary locale data (keep only en_US)
+run-command dnf -y install glibc-langpack-en
+run-command dnf -y remove glibc-all-langpacks || true
+run-command localedef --list-archive | grep -v -i ^en | xargs localedef --delete-from-archive || true
 
+# Cleanup
+run-command dnf autoremove -y
 run-command dnf clean all
 run-command rm -rf /var/cache/dnf/* /var/tmp/* /tmp/*
+run-command rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/info/*
+run-command rm -rf /usr/share/gnome/help/* /usr/share/gtk-doc/*
 run-command journalctl --vacuum-time=1s || true
+
+# Zero fill free space so qcow2 compaction reclaims it
+run-command dd if=/dev/zero of=/var/tmp/zeros bs=1M || true
+run-command rm -f /var/tmp/zeros
 
 # Truncate machine-id
 run-command truncate -s 0 /etc/machine-id
