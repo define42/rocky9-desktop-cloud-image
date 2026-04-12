@@ -13,21 +13,10 @@ upload xrdp.xml:/etc/firewalld/zones/xrdp.xml
 upload xrdp.ini:/etc/xrdp/xrdp.ini
 
 run-command systemctl set-default graphical.target
-#run-command firewall-cmd --add-service=rdp --permanent
-#run-command firewall-cmd --reload
-#install xfce4,xfce4-goodies,xfce4-terminal,lightdm,lightdm-gtk-greeter,xauth,xserver-xorg-input-libinput,xserver-xorg-legacy,xrdp,xorgxrdp,dbus-x11,grub-pc-bin,vim,net-tools,nmap,snapd,wget,gnupg
 
-#run-command ln -sf /dev/null /etc/systemd/system/systemd-networkd-wait-online.service
-
-
-#run-command grub-install --target=i386-pc /dev/sda
-#run-command update-grub
-#run-command apt-get clean && rm -rf /var/lib/apt/lists/*
-
-
-# Enable XRDP
-#run-command usermod -aG ssl-cert xrdp
-#run-command systemctl enable xrdp
+run-command dnf clean all
+run-command rm -rf /var/cache/dnf/* /var/tmp/* /tmp/*
+run-command journalctl --vacuum-time=1s || true
 
 # Truncate machine-id
 run-command truncate -s 0 /etc/machine-id
