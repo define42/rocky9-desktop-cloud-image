@@ -43,7 +43,7 @@ jobs:
 
       - name:  Compress cloud image
         run: |
-          sudo virt-sparsify --compress Rocky-9-GenericCloud-Base.latest.x86_64.qcow2 rocky9-desktop-cloudimg-amd64.img
+          sudo qemu-img convert -c -O qcow2 Rocky-9-GenericCloud-Base.latest.x86_64.qcow2 rocky9-desktop-cloudimg-amd64.img
           ls -la
 
       # -------------------------------

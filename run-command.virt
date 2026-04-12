@@ -1,14 +1,14 @@
 run-command dnf install epel-release -y
 
-# Install XFCE desktop — much lighter than GNOME (~400MB vs ~1.5GB+)
-run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs group install "Xfce" --exclude=*-firmware --exclude=linux-firmware
+# Install GNOME desktop from the Rocky AppStream group.
+run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs group install "GNOME" --exclude=*-firmware --exclude=linux-firmware
 
 run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs install xrdp xorgxrdp
 run-command systemctl enable xrdp
 run-command systemctl set-default graphical.target
 
-# Set XFCE as the default session for XRDP
-run-command echo "xfce4-session" > /etc/sysconfig/desktop
+# Set GNOME as the default desktop/session selection.
+run-command sh -c 'printf "DESKTOP=GNOME\nDISPLAYMANAGER=GNOME\n" > /etc/sysconfig/desktop'
 
 run-command mkdir -p /etc/firewalld/zones
 upload xrdp.xml:/etc/firewalld/zones/xrdp.xml
@@ -29,6 +29,10 @@ run-command journalctl --vacuum-time=1s || true
 # Zero fill free space so qcow2 compaction reclaims it
 run-command dd if=/dev/zero of=/var/tmp/zeros bs=1M || true
 run-command rm -f /var/tmp/zeros
+
+# Let the first real boot repair file labels without SELinux exec denials.
+run-command sed -i 's/^SELINUX=.*/SELINUX=permissive/' /etc/selinux/config
+run-command touch /.autorelabel
 
 # Truncate machine-id
 run-command truncate -s 0 /etc/machine-id
