@@ -1,4 +1,5 @@
 run-command dnf install epel-release -y
+run-command dnf -y --setopt=tsflags=nodocs update --exclude=*-firmware --exclude=linux-firmware
 
 # Install an XFCE desktop from EPEL without pulling in GNOME or gdm.
 run-command dnf -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs install Thunar xfce4-panel xfce4-session xfce4-settings xfconf xfdesktop xfwm4 network-manager-applet openssh-askpass thunar-archive-plugin thunar-volman tumbler xfce-polkit xfce4-appfinder xfce4-power-manager xfce4-pulseaudio-plugin xfce4-screensaver xfce4-terminal lightdm lightdm-gtk --exclude=*-firmware --exclude=linux-firmware
