@@ -4,6 +4,7 @@ run-command systemctl set-default graphical.target
 run-command dnf -y install xrdp
 run-command systemctl enable xrdp
 
+run-command mkdir -p /etc/firewalld/zones
 upload xrdp.xml:/etc/firewalld/zones/xrdp.xml
 upload xrdp.ini:/etc/xrdp/xrdp.ini
 #run-command firewall-cmd --add-service=rdp --permanent
