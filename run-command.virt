@@ -1,5 +1,4 @@
 run-command dnf install epel-release -y
-run-command dnf -y --setopt=tsflags=nodocs update --exclude=*-firmware --exclude=linux-firmware
 run-command rpm --import https://packages.microsoft.com/keys/microsoft.asc
 upload vscode.repo:/etc/yum.repos.d/vscode.repo
 run-command chown root:root /etc/yum.repos.d/vscode.repo
