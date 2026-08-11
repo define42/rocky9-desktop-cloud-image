@@ -27,13 +27,13 @@ jobs:
         run: |
           ls -la
           sudo apt update -y
-          sudo apt install wget e2fsprogs curl qemu-utils -y
+          sudo apt install wget -y
 
       - name: Get Rocky9
         run: |
           wget https://dl.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud-Base.latest.x86_64.qcow2
 
-      - name: Extend cloud image with prebuilt virt tools
+      - name: Build cloud image with prebuilt virt tools
         run: |
           docker_args=(
             --rm
@@ -55,12 +55,10 @@ jobs:
                 --commands-from-file run-command.virt
               virt-sparsify \
                 --in-place Rocky-9-GenericCloud-Base.latest.x86_64.qcow2
+              qemu-img convert -c -O qcow2 \
+                Rocky-9-GenericCloud-Base.latest.x86_64.qcow2 \
+                rocky9-desktop-cloudimg-amd64.img
             '
-          ls -la
-
-      - name: Compress cloud image
-        run: |
-          sudo qemu-img convert -c -O qcow2 Rocky-9-GenericCloud-Base.latest.x86_64.qcow2 rocky9-desktop-cloudimg-amd64.img
           ls -la
 
       - name: Set artifact base name
