@@ -27,15 +27,34 @@ jobs:
         run: |
           ls -la
           sudo apt update -y
-          sudo apt install wget e2fsprogs curl libguestfs-tools isc-dhcp-client -y
+          sudo apt install wget e2fsprogs curl qemu-utils -y
 
       - name: Get Rocky9
         run: |
           wget https://dl.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud-Base.latest.x86_64.qcow2
 
-      - name: Extend cloud image
+      - name: Extend cloud image with libguestfs 1.60+
         run: |
-          sudo virt-customize -a Rocky-9-GenericCloud-Base.latest.x86_64.qcow2 --commands-from-file 'run-command.virt'
+          docker_args=(
+            --rm
+            --volume "$GITHUB_WORKSPACE:/workspace"
+            --workdir /workspace
+          )
+
+          if [[ -e /dev/kvm ]]; then
+            docker_args+=(--device /dev/kvm)
+          fi
+
+          docker run "${docker_args[@]}" \
+            registry.fedoraproject.org/fedora:44 \
+            bash -euxo pipefail -c '
+              dnf install -y --setopt=install_weak_deps=False guestfs-tools
+              rpm -q libguestfs guestfs-tools
+              LIBGUESTFS_BACKEND=direct \
+                virt-customize \
+                  -a Rocky-9-GenericCloud-Base.latest.x86_64.qcow2 \
+                  --commands-from-file run-command.virt
+            '
           ls -la
 
       - name: Compress cloud image
