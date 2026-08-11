@@ -33,10 +33,11 @@ jobs:
         run: |
           wget https://dl.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud-Base.latest.x86_64.qcow2
 
-      - name: Extend cloud image with libguestfs 1.60+
+      - name: Extend cloud image with prebuilt virt tools
         run: |
           docker_args=(
             --rm
+            --pull=always
             --volume "$GITHUB_WORKSPACE:/workspace"
             --workdir /workspace
           )
@@ -46,14 +47,9 @@ jobs:
           fi
 
           docker run "${docker_args[@]}" \
-            registry.fedoraproject.org/fedora:44 \
+            ghcr.io/define42/virt-tools-container:latest \
             bash -euxo pipefail -c '
-              dnf install -y --setopt=install_weak_deps=False guestfs-tools
               rpm -q libguestfs guestfs-tools
-              # Docker blocks the user namespace passt requires. Disable it so
-              # libguestfs uses QEMU SLIRP networking instead.
-              chmod a-x /usr/bin/passt
-              export LIBGUESTFS_BACKEND=direct
               virt-customize \
                 -a Rocky-9-GenericCloud-Base.latest.x86_64.qcow2 \
                 --commands-from-file run-command.virt
