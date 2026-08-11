@@ -53,10 +53,12 @@ jobs:
               # Docker blocks the user namespace passt requires. Disable it so
               # libguestfs uses QEMU SLIRP networking instead.
               chmod a-x /usr/bin/passt
-              LIBGUESTFS_BACKEND=direct \
-                virt-customize \
-                  -a Rocky-9-GenericCloud-Base.latest.x86_64.qcow2 \
-                  --commands-from-file run-command.virt
+              export LIBGUESTFS_BACKEND=direct
+              virt-customize \
+                -a Rocky-9-GenericCloud-Base.latest.x86_64.qcow2 \
+                --commands-from-file run-command.virt
+              virt-sparsify \
+                --in-place Rocky-9-GenericCloud-Base.latest.x86_64.qcow2
             '
           ls -la
 
