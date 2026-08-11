@@ -27,7 +27,7 @@ jobs:
         run: |
           ls -la
           sudo apt update -y
-          sudo apt install wget e2fsprogs curl libguestfs-tools -y
+          sudo apt install wget e2fsprogs curl libguestfs-tools isc-dhcp-client -y
 
       - name: Get Rocky9
         run: |
