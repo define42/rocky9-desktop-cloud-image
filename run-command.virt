@@ -1,5 +1,4 @@
 run-command dnf install epel-release -y
-run-command dnf -y --setopt=tsflags=nodocs update --exclude=*-firmware --exclude=linux-firmware
 run-command rpm --import https://packages.microsoft.com/keys/microsoft.asc
 upload vscode.repo:/etc/yum.repos.d/vscode.repo
 run-command chown root:root /etc/yum.repos.d/vscode.repo
@@ -49,10 +48,6 @@ run-command dnf clean all
 run-command rm -rf /var/cache/dnf/* /var/tmp/* /tmp/*
 run-command rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/info/*
 run-command journalctl --vacuum-time=1s || true
-
-# Zero fill free space so qcow2 compaction reclaims it
-run-command dd if=/dev/zero of=/var/tmp/zeros bs=1M || true
-run-command rm -f /var/tmp/zeros
 
 # Let the first real boot repair file labels without SELinux exec denials.
 run-command sed -i 's/^SELINUX=.*/SELINUX=permissive/' /etc/selinux/config
