@@ -1,1 +1,1 @@
-# rocky9-desktop-cloud-image-
+# rocky9-desktop-cloud-image
