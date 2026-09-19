@@ -42,7 +42,7 @@ run-command grubby --update-kernel=ALL --args="ipv6.disable=1"
 # SauronAgent streams guest audit events to the hypervisor over virtio-vsock.
 # The package is unsigned, so pin its checksum. The unit runs without a config
 # file; the built-in defaults (host CID 2, port 9000) need no changes.
-run-command curl -fsSL -o /tmp/sauronagent.rpm https://github.com/define42/DevBox-Gateway/releases/download/v1.0.71/sauronagent-1.0.72-1.x86_64.rpm
+run-command curl -fsSL -o /tmp/sauronagent.rpm https://github.com/define42/DevBox-Gateway/releases/download/v1.0.72/devbox-gateway-1.0.72-1.x86_64.rpm
 run-command dnf -y install /tmp/sauronagent.rpm
 run-command systemctl enable sauronagent
 
