@@ -10,6 +10,8 @@ cloud platforms or local QEMU testing.
 - XRDP with the Xorg backend and clipboard support
 - Firefox and Visual Studio Code
 - Common administration tools including `vim`, `nmap`, and `net-tools`
+- [SauronAgent](https://github.com/define42/DevBox-Gateway) guest audit agent,
+  enabled at boot and reporting to the hypervisor over virtio-vsock
 - XRDP network-buffer tuning and an Xfce configuration optimized for remote use
 - Full glibc locale coverage
 
@@ -51,8 +53,9 @@ The output is `rocky9-desktop-xrdp.qcow2`.
 | `make clean` | Remove the customized output image |
 | `make distclean` | Remove the output and downloaded base image |
 
-The build downloads packages from Rocky Linux, EPEL, and Microsoft's Visual
-Studio Code repository, so it requires internet access.
+The build downloads packages from Rocky Linux, EPEL, Microsoft's Visual Studio
+Code repository, and the SauronAgent RPM from GitHub Releases, so it requires
+internet access.
 
 ## Local QEMU test
 
@@ -100,6 +103,13 @@ supporting configuration files stored at the repository root.
 The generated image disables IPv6 and configures SELinux in permissive mode.
 The repository also installs a firewalld zone definition containing SSH and RDP
 services; ensure the zone is assigned appropriately when provisioning the VM.
+
+`sauronagent.service` sends events to a SauronHost collector at vsock CID 2,
+port 9000. Give the VM a virtio-vsock device (for example,
+`-device vhost-vsock-pci,guest-cid=3`) and run the collector on the hypervisor.
+Without them, the agent spools events under `/var/lib/sauronagent` and keeps
+retrying. The image loads no audit rules, so the agent reports only the events
+the kernel audits by default.
 
 Both the Rocky Linux base image and the virt-tools container use mutable
 `latest` references, so builds are not byte-for-byte reproducible. Review these
